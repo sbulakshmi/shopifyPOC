@@ -9,7 +9,7 @@ function Index(props) {
   async function getCarrierServices() {
     const res = await props.axios_instance.get("/carrier_services");
     debugger;
-    state.carrierList = res.data.body.carrier_services;
+    state.carrierList = res.data.body;//.carrier_services;
     //this.setState({ carrierList: res.data.body.carrier_services })
     return res;
   }
@@ -38,10 +38,12 @@ function Index(props) {
 
   async function delCarrierServices() {
     debugger;
+    await handleClick();
     let { carrierList } = state;
-    await props.axios_instance.delete("/carrier_services.json", carrierList
-    )
-      .then((response) => {
+    var carrierSelected = carrierList.carrier_services.filter((carrier) => (carrier.name == "TransVirtual1"))[0];
+    if (carrierSelected)
+      await props.axios_instance.delete(`/carrier_services.json/${carrierSelected.id}`
+      ).then((response) => {
         console.log(response);
       }, (error) => {
         console.log(error);
@@ -85,9 +87,9 @@ function Index(props) {
     <Card title="Transvirtual Shipping Service" sectioned
     >
       <p> Transvirtual provides real-time shipping rates to Shopify. Using our resource, you can add us as a carrier service to your shop and then provide our applicable shipping rates at checkout.</p>
-      <Button onClick={handleNewCarrier} type="submit">Install Transvirtual Carrier</Button>
+      <Button onClick={handleNewCarrier}>Install Transvirtual Carrier Service</Button>
       <Button onClick={handleClick}>Get Carrier</Button>
-      <Button onClick={handleDelCarrier}>Delete Transvirtual Carrier</Button>
+      <Button onClick={handleDelCarrier}>Delete Transvirtual Carrier Carrier</Button>
     </Card>
     // <Page>
     //   <Heading>Carrier Service App </Heading>

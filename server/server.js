@@ -124,14 +124,14 @@ app.prepare().then(async () => {
   //   ctx.res.statusCode = 200;
   // });
 
-  router.delete("/carrier_services.json", verifyRequest(), async (ctx) => {
+  router.delete("/carrier_services.json/:carrierListId", verifyRequest(), async (ctx) => {
     // let { carrierList } = ctx.req.carrierList;
     console.log('del5555555');
     //console.log(carrierList);
     const session = await Shopify.Utils.loadCurrentSession(ctx.req, ctx.res);
     const client = new Shopify.Clients.Rest(session.shop, session.accessToken);
     ctx.body = await client.delete({
-      path: 'carrier_services/62073372884',
+      path: `carrier_services/${ctx.params.carrierListId}`,
     });
     ctx.status = 200;
   });
