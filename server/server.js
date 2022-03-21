@@ -20,7 +20,7 @@ Shopify.Context.initialize({
   API_SECRET_KEY: process.env.SHOPIFY_API_SECRET,
   SCOPES: process.env.SCOPES.split(","),
   HOST_NAME: process.env.HOST.replace(/https:\/\/|\/$/g, ""),
-  API_VERSION: ApiVersion.October20,
+  API_VERSION: '2021-10',//ApiVersion.October20,
   IS_EMBEDDED_APP: true,
 
   // This should be replaced with your preferred storage strategy
@@ -71,6 +71,7 @@ app.prepare().then(async () => {
   );
 
   const handleRequest = async (ctx) => {
+    // console.log('pos3333333333');
     await handle(ctx.req, ctx.res);
     ctx.respond = false;
     ctx.res.statusCode = 200;
@@ -92,6 +93,87 @@ app.prepare().then(async () => {
       await Shopify.Utils.graphqlProxy(ctx.req, ctx.res);
     }
   );
+
+  // router.get("/carrier_services", async (ctx) => {
+  //   //const { shop, accessToken } = ctx.session;
+  //   const { shop, accessToken } = ctx.state.shopify;
+  //   const res = await fetch(
+  //     `https://${SHOPIFY_API_KEY}:${accessToken}@${shop}/admin/api/2020-10/carrier_services.json`
+  //   );
+  //   ctx.body = await res.json();
+  //   ctx.status = 200;
+  // });
+
+  router.get("/carrier_services", verifyRequest(), async (ctx) => {
+    console.log('pppppppppppppppppppp');
+    console.log(ctx);
+    const session = await Shopify.Utils.loadCurrentSession(ctx.req, ctx.res);
+    console.log(session);
+    const client = new Shopify.Clients.Rest(session.shop, session.accessToken);
+    //const { shop, accessToken, scope } = ctx.state.shopify;
+    //const client = new Shopify.Clients.Rest(shop, accessToken);
+    ctx.body = await client.get({
+      path: 'carrier_services',
+    });
+    ctx.status = 200;
+  });
+
+  //router.post("/carrier_services", verifyRequest(), handleRequest);
+  // router.post("/carrier_services.json", verifyRequest(), async ctx => {
+  //   ctx.body = ctx.request.body;
+  //   ctx.res.statusCode = 200;
+  // });
+
+  router.delete("/carrier_services.json", verifyRequest(), async (ctx) => {
+    // let { carrierList } = ctx.req.carrierList;
+    console.log('del5555555');
+    //console.log(carrierList);
+    const session = await Shopify.Utils.loadCurrentSession(ctx.req, ctx.res);
+    const client = new Shopify.Clients.Rest(session.shop, session.accessToken);
+    ctx.body = await client.delete({
+      path: 'carrier_services/62073372884',
+    });
+    ctx.status = 200;
+  });
+
+  router.post("/carrier_services.json", verifyRequest(), async (ctx) => {
+
+    console.log(ctx);
+    console.log('pos24444444442');
+
+    const session = await Shopify.Utils.loadCurrentSession(ctx.req, ctx.res);
+    console.log(session);
+    const client = new Shopify.Clients.Rest(session.shop, session.accessToken);
+    //const { shop, accessToken, scope } = ctx.state.shopify;
+    //const client = new Shopify.Clients.Rest(shop, accessToken);
+    ctx.body = await client.post({
+      path: 'carrier_services',
+      type: 'application/json',
+      data: {
+        carrier_service: {
+          name: 'TransVirtual1',
+          callback_url: 'https://transvirtual2103.free.beeceptor.com',
+          service_discovery: true
+        }
+      },
+    });
+    ctx.status = 200;
+  });
+
+  //router.post("/carrier_services.json", verifyRequest(), handleRequest);
+
+
+  // router.get("/carrier_services", async (ctx) => {
+  //   const session = await Shopify.Utils.loadCurrentSession(ctx.req, ctx.res);
+  //   // Create a new client for the specified shop.
+  //   const client = new Shopify.Clients.Rest(session.shop, session.accessToken);
+  //   // Use `client.get` to request the specified Shopify REST API endpoint, in this case `products`.
+  //   const carrier_services = await client.get({
+  //     path: 'carrier_services',
+  //   });
+  //   ctx.body = carrier_services;
+  //   ctx.status = 200;
+  // });
 
   router.get("(/_next/static/.*)", handleRequest); // Static content is clear
   router.get("/_next/webpack-hmr", handleRequest); // Webpack content is clear
