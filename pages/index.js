@@ -1,5 +1,5 @@
-import { Heading, Page, TextField, Card, Button } from "@shopify/polaris";
-import React from "react";
+import { Heading, Page, TextField, Card, Button, Toast, Frame } from "@shopify/polaris";
+import React, { useState, useCallback } from "react";
 
 
 
@@ -54,6 +54,8 @@ function Index(props) {
   async function handleDelCarrier() {
     const result = await delCarrierServices();
     console.log(result);
+    setToastMessage("Carrier removed successfully!");
+    toggleActive();
   }
   const newCarrier = (
     {
@@ -78,6 +80,7 @@ function Index(props) {
     )
       .then((response) => {
         console.log(response);
+
       }, (error) => {
         console.log(error);
       });
@@ -87,15 +90,32 @@ function Index(props) {
   async function handleNewCarrier() {
     const result = await postCarrierServices();
     console.log(result);
+    setToastMessage("Carrier registered successfully!");
+    toggleActive();
   }
+
+  const [active, setActive] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+
+
+
+  const toggleActive = useCallback((msg) => { setActive((active) => !active); }, []);
+
+  const toastMarkup = active ? (
+    <Toast content={toastMessage} onDismiss={toggleActive} />
+  ) : null;
+
   return (
-    <Card title="Transvirtual Shipping Service" sectioned
-    >
-      <p> Transvirtual provides real-time shipping rates to Shopify. Using our resource, you can add us as a carrier service to your shop and then provide our applicable shipping rates at checkout.</p>
-      <Button onClick={handleNewCarrier}>Install Transvirtual Carrier Service</Button>
-      {/* <Button onClick={handleClick}>Get Carrier</Button> */}
-      <Button onClick={handleDelCarrier}>Delete Transvirtual Carrier Service</Button>
-    </Card>
+    <Frame>
+      <Card title="Transvirtual Shipping Service" sectioned
+      >
+        <p> Transvirtual provides real-time shipping rates to Shopify. Using our resource, you can add us as a carrier service to your shop and then provide our applicable shipping rates at checkout.</p>
+        <Button onClick={handleNewCarrier}>Install Transvirtual Carrier Service</Button>
+        {/* <Button onClick={handleClick}>Get Carrier</Button> */}
+        <Button onClick={handleDelCarrier}>Delete Transvirtual Carrier Service</Button>
+        {toastMarkup}
+      </Card>
+    </Frame>
     // <Page>
     //   <Heading>Carrier Service App </Heading>
     //   <input
