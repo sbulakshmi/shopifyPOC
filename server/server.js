@@ -6,6 +6,7 @@ import Shopify, { ApiVersion } from "@shopify/shopify-api";
 import Koa from "koa";
 import next from "next";
 import Router from "koa-router";
+const bodyParser = require("koa-bodyparser");
 
 dotenv.config();
 const port = parseInt(process.env.PORT, 10) || 8081;
@@ -41,6 +42,12 @@ app.prepare().then(async () => {
   const server = new Koa();
   const router = new Router();
   server.keys = [Shopify.Context.API_SECRET_KEY];
+
+  server.use(async (ctx, next) => {
+    if (ctx.path === '/webhooks') ctx.disableBodyParser = true;
+    await next();
+  });
+  server.use(bodyParser());
 
   server.use(
     createShopifyAuth({
@@ -103,6 +110,35 @@ app.prepare().then(async () => {
   //   ctx.body = await res.json();
   //   ctx.status = 200;
   // });
+  router.post("/carrier_services", verifyRequest(), async (ctx) => {
+
+    console.log(ctx);
+    console.log('pos24444444442');
+
+    const session = await Shopify.Utils.loadCurrentSession(ctx.req, ctx.res);
+    console.log(session);
+    const client = new Shopify.Clients.Rest(session.shop, session.accessToken);
+
+    // ctx.body = await client.post({
+    //   path: 'carrier_services',
+    //   type: 'application/json',
+    //   data: {
+    //     carrier_service: {
+    //       name: 'TransVirtual1',
+    //       callback_url: 'https://transvirtual2103.free.beeceptor.com',
+    //       service_discovery: true
+    //     }
+    //   },
+    // });
+
+    ctx.body = await client.post({
+      path: 'carrier_services',
+      type: 'application/json',
+      data: ctx.request.body,
+    });
+
+    ctx.status = 200;
+  });
 
   router.get("/carrier_services", verifyRequest(), async (ctx) => {
     console.log('pppppppppppppppppppp');
@@ -136,29 +172,7 @@ app.prepare().then(async () => {
     ctx.status = 200;
   });
 
-  router.post("/carrier_services.json", verifyRequest(), async (ctx) => {
 
-    console.log(ctx);
-    console.log('pos24444444442');
-
-    const session = await Shopify.Utils.loadCurrentSession(ctx.req, ctx.res);
-    console.log(session);
-    const client = new Shopify.Clients.Rest(session.shop, session.accessToken);
-    //const { shop, accessToken, scope } = ctx.state.shopify;
-    //const client = new Shopify.Clients.Rest(shop, accessToken);
-    ctx.body = await client.post({
-      path: 'carrier_services',
-      type: 'application/json',
-      data: {
-        carrier_service: {
-          name: 'TransVirtual1',
-          callback_url: 'https://transvirtual2103.free.beeceptor.com',
-          service_discovery: true
-        }
-      },
-    });
-    ctx.status = 200;
-  });
 
   //router.post("/carrier_services.json", verifyRequest(), handleRequest);
 
@@ -190,6 +204,7 @@ app.prepare().then(async () => {
 
   server.use(router.allowedMethods());
   server.use(router.routes());
+
   server.listen(port, () => {
     console.log(`> Ready on http://localhost:${port}`);
   });

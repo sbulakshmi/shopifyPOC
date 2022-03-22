@@ -40,7 +40,7 @@ function Index(props) {
     debugger;
     await handleClick();
     let { carrierList } = state;
-    var carrierSelected = carrierList.carrier_services.filter((carrier) => (carrier.name == "TransVirtual1"))[0];
+    var carrierSelected = carrierList.carrier_services.filter((carrier) => (carrier.name == "TransVirtual"))[0];
     if (carrierSelected)
       await props.axios_instance.delete(`/carrier_services.json/${carrierSelected.id}`
       ).then((response) => {
@@ -55,13 +55,14 @@ function Index(props) {
     const result = await delCarrierServices();
     console.log(result);
   }
-  const newCarrier = JSON.stringify(
+  const newCarrier = (
     {
       carrier_service: {
-        name: 'TransVirtual1',
+        name: 'TransVirtual',
         callback_url: 'https://transvirtual170322.free.beeceptor.com',
         service_discovery: true
       }
+
     }
   )
 
@@ -69,7 +70,11 @@ function Index(props) {
     //const res = await props.axios_instance.post("/carrier_services", newCarrier,);
 
     //{ "metafield": { "namespace": "shop", "key": "discount", "value": "30%", "value_type": "string" } },
-    await props.axios_instance.post("/carrier_services.json", newCarrier
+    await props.axios_instance.post("/carrier_services", newCarrier, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
     )
       .then((response) => {
         console.log(response);
@@ -88,8 +93,8 @@ function Index(props) {
     >
       <p> Transvirtual provides real-time shipping rates to Shopify. Using our resource, you can add us as a carrier service to your shop and then provide our applicable shipping rates at checkout.</p>
       <Button onClick={handleNewCarrier}>Install Transvirtual Carrier Service</Button>
-      <Button onClick={handleClick}>Get Carrier</Button>
-      <Button onClick={handleDelCarrier}>Delete Transvirtual Carrier Carrier</Button>
+      {/* <Button onClick={handleClick}>Get Carrier</Button> */}
+      <Button onClick={handleDelCarrier}>Delete Transvirtual Carrier Service</Button>
     </Card>
     // <Page>
     //   <Heading>Carrier Service App </Heading>
